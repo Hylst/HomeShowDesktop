@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ property.title | default('Modern Property Listing') }}</title>
+    <meta name="description" content="{{ seo.description | default(property.description) }}">
+    <meta name="keywords" content="{{ seo.keywords }}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{{ seo.og_type }}">
+    <meta property="og:url" content="index.html">
+    <meta property="og:title" content="{{ seo.og_title }}">
+    <meta property="og:description" content="{{ seo.og_description }}">
+    {% if property.media and property.media|length > 0 %}
+    <meta property="og:image" content="media/images/{{ property.media[0].name }}">
+    {% endif %}
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="{{ seo.twitter_card }}">
+    <meta property="twitter:url" content="index.html">
+    <meta property="twitter:title" content="{{ seo.og_title }}">
+    <meta property="twitter:description" content="{{ seo.og_description }}">
+    {% if property.media and property.media|length > 0 %}
+    <meta property="twitter:image" content="media/images/{{ property.media[0].name }}">
+    {% endif %}
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {{ structured_data | safe }}
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>{{ property.title | default('Property Listing') }}</h1>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#details" class="nav-link">Details</a>
+                <a href="#gallery" class="nav-link">Gallery</a>
+                <a href="#location" class="nav-link">Location</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-slider">
+            {% if property.media and property.media|length > 0 %}
+                {% for media in property.media[:5] %}
+                    {% if media.type == 'image' %}
+                    <div class="hero-slide {{ 'active' if loop.first else '' }}">
+                        <img src="media/images/{{ media.name }}" alt="{{ property.title }} - Image {{ loop.index }}">
+                        <div class="hero-overlay"></div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+            <div class="hero-slide active">
+                <img src="images/default-property.jpg" alt="Property Image">
+                <div class="hero-overlay"></div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="hero-content">
+            <div class="container">
+                <div class="hero-text">
+                    <h1 class="hero-title">{{ property.title | default('Beautiful Modern Property') }}</h1>
+                    <p class="hero-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ property.location | default('Prime Location') }}
+                    </p>
+                    <div class="hero-price">
+                        <span class="price-label">Price:</span>
+                        <span class="price-value">${{ property.price | format_price }}</span>
+                    </div>
+                    <div class="hero-features">
+                        {% if property.bedrooms %}
+                        <div class="feature-item">
+                            <i class="fas fa-bed"></i>
+                            <span>{{ property.bedrooms }} Beds</span>
+                        </div>
+                        {% endif %}
+                        {% if property.bathrooms %}
+                        <div class="feature-item">
+                            <i class="fas fa-bath"></i>
+                            <span>{{ property.bathrooms }} Baths</span>
+                        </div>
+                        {% endif %}
+                        {% if property.area %}
+                        <div class="feature-item">
+                            <i class="fas fa-ruler-combined"></i>
+                            <span>{{ property.area | format_area }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="hero-actions">
+                        <a href="#contact" class="btn btn-primary">Contact Agent</a>
+                        <a href="#gallery" class="btn btn-secondary">View Gallery</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hero Navigation -->
+        {% if property.media and property.media|length > 1 %}
+        <div class="hero-nav">
+            <button class="hero-nav-btn prev" id="hero-prev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="hero-nav-btn next" id="hero-next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        {% endif %}
+    </section>
+    
+    <!-- Property Details -->
+    <section id="details" class="property-details">
+        <div class="container">
+            <div class="section-header">
+                <h2>Property Details</h2>
+                <p>Everything you need to know about this amazing property</p>
+            </div>
+            
+            <div class="details-grid">
+                <div class="details-main">
+                    <div class="description">
+                        <h3>Description</h3>
+                        <p>{{ property.description | default('This beautiful property offers modern living in a prime location. With carefully designed spaces and high-quality finishes, it represents the perfect blend of comfort and style.') }}</p>
+                    </div>
+                    
+                    {% if property.features and property.features|length > 0 %}
+                    <div class="features">
+                        <h3>Features & Amenities</h3>
+                        <div class="features-grid">
+                            {% for feature in property.features %}
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>{{ feature }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="details-sidebar">
+                    <div class="property-info-card">
+                        <h3>Property Information</h3>
+                        <div class="info-grid">
+                            {% if property.type %}
+                            <div class="info-item">
+                                <span class="info-label">Type:</span>
+                                <span class="info-value">{{ property.type }}</span>
+                            </div>
+                            {% endif %}
+                            {% if property.bedrooms %}
+                            <div class="info-item">
+                                <span class="info-label">Bedrooms:</span>
+                                <span class="info-value">{{ property.bedrooms }}</span>
+                            </div>
+                            {% endif %}
+                            {% if property.bathrooms %}
+                            <div class="info-item">
+                                <span class="info-label">Bathrooms:</span>
+                                <span class="info-value">{{ property.bathrooms }}</span>
+                            </div>
+                            {% endif %}
+                            {% if property.area %}
+                            <div class="info-item">
+                                <span class="info-label">Area:</span>
+                                <span class="info-value">{{ property.area | format_area }}</span>
+                            </div>
+                            {% endif %}
+                            {% if property.year_built %}
+                            <div class="info-item">
+                                <span class="info-label">Year Built:</span>
+                                <span class="info-value">{{ property.year_built }}</span>
+                            </div>
+                            {% endif %}
+                            {% if property.parking %}
+                            <div class="info-item">
+                                <span class="info-label">Parking:</span>
+                                <span class="info-value">{{ property.parking }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if features.mortgage_calculator %}
+                    <div class="mortgage-calculator">
+                        <h3>Mortgage Calculator</h3>
+                        <form id="mortgage-form">
+                            <div class="form-group">
+                                <label for="loan-amount">Loan Amount ($)</label>
+                                <input type="number" id="loan-amount" value="{{ property.price | default(500000) }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="interest-rate">Interest Rate (%)</label>
+                                <input type="number" id="interest-rate" value="3.5" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="loan-term">Loan Term (years)</label>
+                                <input type="number" id="loan-term" value="30">
+                            </div>
+                            <button type="button" onclick="calculateMortgage()">Calculate</button>
+                            <div id="mortgage-result"></div>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Gallery Section -->
+    {% if features.image_gallery and property.media and property.media|length > 0 %}
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <div class="section-header">
+                <h2>Photo Gallery</h2>
+                <p>Explore every corner of this beautiful property</p>
+            </div>
+            
+            <div class="gallery-grid">
+                {% for media in property.media %}
+                    {% if media.type == 'image' %}
+                    <div class="gallery-item" data-src="media/images/{{ media.name }}">
+                        <img src="media/thumbnails/{{ media.name }}" alt="{{ property.title }} - Gallery Image {{ loop.index }}">
+                        <div class="gallery-overlay">
+                            <i class="fas fa-expand"></i>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    
+    <!-- Location Section -->
+    {% if features.map_integration %}
+    <section id="location" class="location">
+        <div class="container">
+            <div class="section-header">
+                <h2>Location</h2>
+                <p>Discover the neighborhood and nearby amenities</p>
+            </div>
+            
+            <div class="location-content">
+                <div class="location-info">
+                    <h3>{{ property.location | default('Prime Location') }}</h3>
+                    <p>{{ property.location_description | default('This property is located in a highly desirable area with easy access to shopping, dining, schools, and transportation.') }}</p>
+                    
+                    {% if property.nearby_amenities %}
+                    <div class="amenities">
+                        <h4>Nearby Amenities</h4>
+                        <ul>
+                            {% for amenity in property.nearby_amenities %}
+                            <li><i class="fas fa-map-marker-alt"></i> {{ amenity }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="map-container">
+                    <div id="map" class="map"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    
+    <!-- Contact Section -->
+    {% if features.contact_form %}
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2>Contact Us</h2>
+                <p>Get in touch to schedule a viewing or ask questions</p>
+            </div>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Get In Touch</h3>
+                    <p>Ready to make this property your new home? Contact our experienced team today.</p>
+                    
+                    <div class="contact-details">
+                        {% if property.agent_name %}
+                        <div class="contact-item">
+                            <i class="fas fa-user"></i>
+                            <div>
+                                <strong>Agent</strong>
+                                <p>{{ property.agent_name }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if property.agent_phone %}
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <strong>Phone</strong>
+                                <p><a href="tel:{{ property.agent_phone }}">{{ property.agent_phone }}</a></p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if property.agent_email %}
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <strong>Email</strong>
+                                <p><a href="mailto:{{ property.agent_email }}">{{ property.agent_email }}</a></p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <form id="contact-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Full Name *</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="interest">Interest Level</label>
+                                <select id="interest" name="interest">
+                                    <option value="viewing">Schedule Viewing</option>
+                                    <option value="information">Request Information</option>
+                                    <option value="offer">Make an Offer</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" placeholder="Tell us about your interest in this property..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>{{ property.title | default('Property Listing') }}</h3>
+                    <p>{{ property.location | default('Prime Location') }}</p>
+                </div>
+                
+                {% if features.social_sharing %}
+                <div class="footer-section">
+                    <h4>Share This Property</h4>
+                    <div class="social-links">
+                        <a href="#" onclick="shareOnFacebook()" class="social-link">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" onclick="shareOnTwitter()" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" onclick="shareOnLinkedIn()" class="social-link">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" onclick="shareByEmail()" class="social-link">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; {{ site.generated_date[:4] }} Generated by {{ site.generator }}. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Gallery Modal -->
+    <div id="gallery-modal" class="gallery-modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img id="modal-image" src="" alt="">
+            <div class="modal-nav">
+                <button id="modal-prev" class="modal-nav-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button id="modal-next" class="modal-nav-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/script.js"></script>
+    {% if features.map_integration %}
+    <script src="js/map.js"></script>
+    {% endif %}
+    
+    <!-- Google Analytics (if configured) -->
+    {% if options.google_analytics_id %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ options.google_analytics_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ options.google_analytics_id }}');
+    </script>
+    {% endif %}
+</body>
+</html>

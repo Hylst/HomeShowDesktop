@@ -1,0 +1,22 @@
+{
+  "id": "modern",
+  "name": "Modern",
+  "description": "Clean, contemporary design with smooth animations and responsive layout",
+  "preview_image": "preview.jpg",
+  "style": "modern",
+  "features": [
+    "Responsive Design",
+    "Image Gallery",
+    "Contact Form",
+    "SEO Optimized",
+    "Mobile First",
+    "Fast Loading",
+    "Social Sharing",
+    "Google Maps Integration"
+  ],
+  "responsive": true,
+  "seo_optimized": true,
+  "version": "1.0.0",
+  "author": "HomeShow Desktop",
+  "created_date": "2024-01-01"
+}
