@@ -335,10 +335,12 @@ class MainWindow:
         Open the property creation wizard
         """
         try:
+            from core.media_handler import MediaHandler
+            media_handler = MediaHandler()
             wizard = PropertyWizard(
                 self.root,
                 self.property_manager,
-                self.media_handler,
+                media_handler,
                 on_complete=self.on_property_saved
             )
         except Exception as e:

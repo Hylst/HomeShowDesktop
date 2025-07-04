@@ -344,7 +344,7 @@ class PreferencesDialog:
             self.save_settings()
             
             # Apply language change if needed
-            if self.language_var.get() != get_current_language():
+            if self.language_var.get() != get_language():
                 set_language(self.language_var.get())
                 messagebox.showinfo(
                     translate("preferences_language_changed"),
