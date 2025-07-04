@@ -263,7 +263,7 @@ class Dashboard:
         """
         Open the property manager interface
         """
-        property_manager_window = tk.Toplevel(self.main_window)
+        property_manager_window = tk.Toplevel(self.main_window.root)
         property_manager_window.title("Property Manager")
         property_manager_window.geometry("900x600")
         property_manager_window.minsize(800, 500)

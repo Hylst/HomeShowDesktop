@@ -353,15 +353,15 @@ class MainWindow:
         Args:
             event: Tab change event
         """
-        selected_tab = self.notebook.tab(self.notebook.select(), "text")
+        selected_index = self.notebook.index(self.notebook.select())
         
-        if selected_tab == "Dashboard":
+        if selected_index == 0:  # Dashboard
             self.show_dashboard()
-        elif selected_tab == "Properties":
+        elif selected_index == 1:  # Properties
             self.show_properties()
-        elif selected_tab == "Projects":
+        elif selected_index == 2:  # Projects
             self.show_projects()
-        elif selected_tab == "Templates":
+        elif selected_index == 3:  # Templates
             self.show_templates()
     
     def show_projects(self):
