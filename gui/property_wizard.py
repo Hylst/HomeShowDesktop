@@ -21,7 +21,7 @@ class PropertyWizard:
     Multi-step wizard for creating new properties
     """
     
-    def __init__(self, parent, property_manager, media_handler, on_complete: Optional[Callable] = None):
+    def __init__(self, parent, property_manager, media_handler, on_complete: Optional[Callable] = None, property_id: Optional[int] = None):
         """
         Initialize property wizard
         
@@ -30,16 +30,23 @@ class PropertyWizard:
             property_manager: PropertyManager instance
             media_handler: MediaHandler instance
             on_complete: Callback function when wizard completes
+            property_id: Optional property ID for editing existing property
         """
         self.parent = parent
         self.property_manager = property_manager
         self.media_handler = media_handler
         self.on_complete = on_complete
+        self.property_id = property_id
+        self.is_editing = property_id is not None
         
         # Wizard data
         self.property_data = {}
         self.media_files = []
         self.current_step = 0
+        
+        # Load existing property data if editing
+        if self.is_editing:
+            self.load_existing_property_data()
         
         # Wizard steps
         self.steps = [
@@ -76,6 +83,40 @@ class PropertyWizard:
         ]
         
         self.create_wizard_window()
+    
+    def load_existing_property_data(self):
+        """
+        Load existing property data for editing
+        """
+        try:
+            # Get property data from database
+            property_data = self.property_manager.get_property_by_id(self.property_id)
+            if property_data:
+                self.property_data = property_data.copy()
+                
+                # Load media files
+                self.media_files = self.property_manager.get_property_media(self.property_id)
+                
+                # Convert features from string to list if needed
+                if 'features' in self.property_data and isinstance(self.property_data['features'], str):
+                    import json
+                    try:
+                        self.property_data['features'] = json.loads(self.property_data['features'])
+                    except (json.JSONDecodeError, TypeError):
+                        self.property_data['features'] = []
+                
+                if 'additional_features' in self.property_data and isinstance(self.property_data['additional_features'], str):
+                    import json
+                    try:
+                        self.property_data['additional_features'] = json.loads(self.property_data['additional_features'])
+                    except (json.JSONDecodeError, TypeError):
+                        self.property_data['additional_features'] = []
+                        
+        except Exception as e:
+            from tkinter import messagebox
+            messagebox.showerror("Error", f"Failed to load property data: {e}")
+            self.property_data = {}
+            self.media_files = []
     
     def create_wizard_window(self):
         """
@@ -121,9 +162,10 @@ class PropertyWizard:
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         # Title
+        title_text = translate('wizard_edit_property') if self.is_editing else translate('wizard_create_property')
         self.title_label = ttk.Label(
             header_frame,
-            text=translate('wizard_create_property'),
+            text=title_text,
             font=('Segoe UI', 18, 'bold')
         )
         self.title_label.pack(anchor=tk.W)
@@ -236,9 +278,10 @@ class PropertyWizard:
         
         # Next/Finish button
         if self.current_step == len(self.steps) - 1:
-            self.next_btn.config(text="Create Property")
+            button_text = translate('wizard_update_property') if self.is_editing else translate('wizard_create_property_btn')
+            self.next_btn.config(text=button_text)
         else:
-            self.next_btn.config(text="Next →")
+            self.next_btn.config(text=f"{translate('wizard_next')} →")
     
     def update_progress(self):
         """
@@ -1170,7 +1213,7 @@ class PropertyWizard:
     
     def create_property(self):
         """
-        Create the property in database with validation
+        Create or update the property in database with validation
         """
         try:
             # Save current step data
@@ -1183,19 +1226,32 @@ class PropertyWizard:
                 return
             
             # Show progress dialog
-            progress_window = self.show_progress_dialog()
+            action_text = "Updating" if self.is_editing else "Creating"
+            progress_window = self.show_progress_dialog(action_text)
             
-            # Create property in separate thread
-            def create_thread():
+            # Create/Update property in separate thread
+            def process_thread():
                 try:
-                    # Prepare media file paths
-                    media_file_paths = [media['path'] for media in self.media_files] if self.media_files else None
-                    
-                    # Create property with media
-                    property_id, media_dir = self.property_manager.create_property_with_media(
-                        self.property_data, 
-                        media_file_paths
-                    )
+                    if self.is_editing:
+                        # Update existing property
+                        success = self.property_manager.update_property(self.property_id, self.property_data)
+                        
+                        # Update media files if changed
+                        if self.media_files:
+                            media_file_paths = [media['path'] for media in self.media_files if 'path' in media]
+                            if media_file_paths:
+                                self.property_manager.update_property_media(self.property_id, media_file_paths)
+                        
+                        property_id = self.property_id
+                        action_past = "updated"
+                    else:
+                        # Create new property
+                        media_file_paths = [media['path'] for media in self.media_files] if self.media_files else None
+                        property_id, media_dir = self.property_manager.create_property_with_media(
+                            self.property_data, 
+                            media_file_paths
+                        )
+                        action_past = "created"
                     
                     # Close progress dialog
                     progress_window.destroy()
@@ -1203,7 +1259,7 @@ class PropertyWizard:
                     # Show success message
                     messagebox.showinfo(
                         "Success",
-                        f"Property '{self.property_data['title']}' created successfully!"
+                        f"Property '{self.property_data['title']}' {action_past} successfully!"
                     )
                     
                     # Close wizard
@@ -1215,23 +1271,27 @@ class PropertyWizard:
                         
                 except Exception as e:
                     progress_window.destroy()
-                    messagebox.showerror("Error", f"Failed to create property: {str(e)}")
+                    messagebox.showerror("Error", f"Failed to {action_text.lower()} property: {str(e)}")
             
-            # Start creation thread
-            threading.Thread(target=create_thread, daemon=True).start()
+            # Start processing thread
+            threading.Thread(target=process_thread, daemon=True).start()
             
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to create property: {str(e)}")
+            action_text = "update" if self.is_editing else "create"
+            messagebox.showerror("Error", f"Failed to {action_text} property: {str(e)}")
     
-    def show_progress_dialog(self):
+    def show_progress_dialog(self, action_text="Creating"):
         """
         Show progress dialog
         
+        Args:
+            action_text: Action being performed (Creating/Updating)
+            
         Returns:
             tk.Toplevel: Progress window
         """
         progress_window = tk.Toplevel(self.window)
-        progress_window.title("Creating Property")
+        progress_window.title(f"{action_text} Property")
         progress_window.geometry("300x100")
         progress_window.resizable(False, False)
         progress_window.transient(self.window)
@@ -1246,7 +1306,7 @@ class PropertyWizard:
         # Progress content
         ttk.Label(
             progress_window,
-            text="Creating property...",
+            text=f"{action_text} property...",
             font=('Segoe UI', 12)
         ).pack(pady=20)
         

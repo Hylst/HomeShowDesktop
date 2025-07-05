@@ -672,17 +672,17 @@ class PropertyManagerInterface:
         actions_frame = ttk.Frame(self.detail_frame)
         actions_frame.pack(fill=tk.X, padx=10, pady=10)
         
-        ttk.Button(actions_frame, text="Edit Property", 
+        ttk.Button(actions_frame, text=self.localization.get_text("btn_edit_property"), 
                   command=self.edit_selected_property,
                   style='Primary.TButton').pack(side=tk.LEFT, padx=(0, 10))
         
-        ttk.Button(actions_frame, text="Duplicate", 
+        ttk.Button(actions_frame, text=self.localization.get_text("btn_duplicate_property"), 
                   command=self.duplicate_selected_property).pack(side=tk.LEFT, padx=(0, 10))
         
-        ttk.Button(actions_frame, text="Generate Website", 
+        ttk.Button(actions_frame, text=self.localization.get_text("btn_generate_website"), 
                   command=self.generate_website).pack(side=tk.LEFT, padx=(0, 10))
         
-        ttk.Button(actions_frame, text="Export", 
+        ttk.Button(actions_frame, text=self.localization.get_text("btn_export"), 
                   command=self.export_selected_property).pack(side=tk.LEFT)
     
     # Action methods
@@ -698,23 +698,29 @@ class PropertyManagerInterface:
         Edit selected property
         """
         if not self.selected_property_id:
-            messagebox.showwarning("No Selection", "Please select a property to edit.")
+            messagebox.showwarning(
+                self.localization.get_text("msg_no_selection"), 
+                self.localization.get_text("msg_no_selection_edit")
+            )
             return
         
         try:
-            # Open property wizard in edit mode
+            # Close existing wizard if open
             if hasattr(self.main_window, 'property_wizard') and self.main_window.property_wizard:
                 if self.main_window.property_wizard.window.winfo_exists():
                     self.main_window.property_wizard.window.destroy()
             
             from core.media_handler import MediaHandler
+            from gui.property_wizard import PropertyWizard
             media_handler = MediaHandler()
             
+            # Open property wizard in edit mode with property ID
             self.main_window.property_wizard = PropertyWizard(
                 self.main_window.root, 
                 self.property_manager, 
                 media_handler,
-                self.on_property_saved
+                self.on_property_saved,
+                property_id=self.selected_property_id
             )
             
         except Exception as e:
@@ -725,34 +731,50 @@ class PropertyManagerInterface:
         Duplicate selected property
         """
         if not self.selected_property_id:
-            messagebox.showwarning("No Selection", "Please select a property to duplicate.")
+            messagebox.showwarning(
+                self.localization.get_text("msg_no_selection"), 
+                self.localization.get_text("msg_no_selection_duplicate")
+            )
             return
         
         try:
             new_property_id = self.property_manager.duplicate_property(self.selected_property_id)
             if new_property_id:
-                messagebox.showinfo("Success", f"Property duplicated successfully (New ID: {new_property_id})")
+                messagebox.showinfo(
+                    self.localization.get_text("msg_success"), 
+                    self.localization.get_text("msg_property_duplicated").format(new_id=new_property_id)
+                )
                 self.refresh_properties_list()
                 if hasattr(self.main_window, 'dashboard') and self.main_window.dashboard:
                     self.main_window.dashboard.refresh()
             else:
-                messagebox.showerror("Error", "Failed to duplicate property.")
+                messagebox.showerror(
+                    self.localization.get_text("msg_error"), 
+                    self.localization.get_text("msg_duplicate_error")
+                )
         except Exception as e:
-            messagebox.showerror("Error", f"Error duplicating property: {e}")
+            messagebox.showerror(
+                self.localization.get_text("msg_error"), 
+                f"{self.localization.get_text('msg_duplicate_error')}: {e}"
+            )
     
     def delete_selected_property(self):
         """
         Delete selected property
         """
         if not self.selected_property_id or not self.selected_property_data:
-            messagebox.showwarning("No Selection", "Please select a property to delete.")
+            messagebox.showwarning(
+                self.localization.get_text("msg_no_selection"), 
+                self.localization.get_text("msg_no_selection_delete")
+            )
             return
         
         # Confirm deletion
         result = messagebox.askyesno(
-            "Confirm Deletion",
-            f"Are you sure you want to delete property '{self.selected_property_data['title']}'?\n\n"
-            "This action cannot be undone and will remove all associated media files."
+            self.localization.get_text("btn_delete_property"),
+            self.localization.get_text("msg_confirm_delete_property").format(
+                title=self.selected_property_data['title']
+            )
         )
         
         if result:
@@ -760,16 +782,25 @@ class PropertyManagerInterface:
                 success = self.property_manager.delete_property_with_media(self.selected_property_id)
                 
                 if success:
-                    messagebox.showinfo("Success", "Property deleted successfully")
+                    messagebox.showinfo(
+                        self.localization.get_text("msg_success"), 
+                        self.localization.get_text("msg_property_deleted")
+                    )
                     self.refresh_properties_list()
                     self.show_no_selection_message()
                     if hasattr(self.main_window, 'dashboard') and self.main_window.dashboard:
                         self.main_window.dashboard.refresh()
                 else:
-                    messagebox.showerror("Error", "Failed to delete property.")
+                    messagebox.showerror(
+                        self.localization.get_text("msg_error"), 
+                        self.localization.get_text("msg_delete_error")
+                    )
                     
             except Exception as e:
-                messagebox.showerror("Error", f"Error deleting property: {e}")
+                messagebox.showerror(
+                    self.localization.get_text("msg_error"), 
+                    f"{self.localization.get_text('msg_delete_error')}: {e}"
+                )
     
     def generate_website(self):
         """

@@ -98,6 +98,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ **CORRIGÉ**: Erreur Tkinter callback dans dashboard.py - Toplevel(self.main_window)
 - ✅ **CORRIGÉ**: Navigation entre onglets - utilisation d'index au lieu de noms traduits
 
+### Système d'Édition de Propriétés Implémenté ✅
+
+#### Fonctionnalités d'Édition Complètes
+- ✅ **PropertyWizard en mode édition**: Support du paramètre `property_id` pour l'édition
+- ✅ **Chargement automatique des données**: Méthode `load_existing_property_data()`
+- ✅ **Interface adaptative**: Textes dynamiques selon le mode (création/édition)
+- ✅ **Bouton "Edit" fonctionnel**: Intégration dans PropertyManagerInterface
+- ✅ **Validation identique**: Même système de validation pour création et édition
+- ✅ **Mise à jour en base**: Méthodes `update_property()` et `update_property_media()`
+- ✅ **Messages contextuels**: "Property created" vs "Property updated"
+- ✅ **Dialog de progression**: Texte adaptatif "Creating" vs "Updating Property"
+- ✅ **Traductions complètes**: Support français/anglais pour tous les textes d'édition
+
+#### Méthodes PropertyManager Ajoutées
+- ✅ **get_property_by_id()**: Récupération d'une propriété par ID
+- ✅ **update_property()**: Mise à jour des données d'une propriété
+- ✅ **delete_property()**: Suppression d'une propriété (pour tests)
+
+#### Tests de Validation
+- ✅ **Test automatisé**: Script `test_property_editing.py` complet
+- ✅ **Création de propriété test**: Vérification de la création
+- ✅ **Récupération des données**: Test de `get_property_by_id()`
+- ✅ **Mise à jour des champs**: Test de modification titre, prix, chambres
+- ✅ **Nettoyage automatique**: Suppression de la propriété test
+- ✅ **Tous les tests passent**: Validation complète du système d'édition
+
 ### Validation des Données Implémentée ✅
 
 #### Système de Validation Complet
@@ -117,8 +143,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### 🏠 Onglet Properties (Propriétés) - EN COURS
 - ✅ **Interface de base créée**: PropertyManagerInterface avec recherche et filtres
 - ✅ **Liste des propriétés**: Affichage en tableau avec tri et sélection
+- ✅ **Édition de propriétés**: Système complet d'édition avec PropertyWizard
+- ✅ **Bouton "Edit" fonctionnel**: Ouverture du wizard en mode édition
+- ✅ **Chargement des données existantes**: Pré-remplissage automatique des champs
+- ✅ **Mise à jour dynamique**: Textes adaptatifs ("Create" vs "Update Property")
+- ✅ **Validation complète**: Même système de validation pour création et édition
+- ✅ **Traductions**: Support français/anglais pour l'édition
 - 📝 **À IMPLÉMENTER**:
-  - Édition de propriétés existantes (formulaire modal)
   - Suppression avec confirmation
   - Duplication de propriétés
   - Export/Import de données
@@ -148,12 +179,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Gestion des thèmes et couleurs
 
 ### Fonctionnalités de Base Manquantes
-- 📝 **Interface de gestion des propriétés**: Édition, suppression, duplication
-- 🖼️ **Gestionnaire de médias avancé**: Réorganisation, rotation, recadrage d'images
-- 🏠 **Types de propriétés étendus**: Loft, duplex, penthouse, bureau, entrepôt
-- 💰 **Modes de transaction**: Vente, location meublée/non meublée, saisonnière
-- 🔍 **Système de recherche et filtres**: Par prix, type, localisation, caractéristiques
-- 📊 **Statistiques détaillées**: Graphiques, tendances, rapports
+- 📝 **Interface de gestion des propriétés**:
+  - ✅ **Édition**: Système complet d'édition avec PropertyWizard
+  - 📝 **Suppression**: Interface de suppression avec confirmation (à implémenter)
+  - 📝 **Duplication**: Clonage de propriétés existantes (à implémenter)
+- 🖼️ **Gestionnaire de médias avancé**: 
+  - ✅ **Ajout/Suppression**: Gestion basique des médias implémentée
+  - 📝 **Réorganisation**: Glisser-déposer pour réordonner (à implémenter)
+  - 📝 **Édition d'images**: Rotation, recadrage, filtres (à implémenter)
+  - 📝 **Prévisualisation**: Visionneuse intégrée avec zoom (à implémenter)
+- 🏠 **Types de propriétés étendus**: 
+  - ✅ **Types de base**: Maison, Appartement, Terrain implémentés
+  - 📝 **Types spécialisés**: Loft, duplex, penthouse, bureau, entrepôt (à implémenter)
+- 💰 **Modes de transaction**: 
+  - ✅ **Vente/Location**: Types de base implémentés
+  - 📝 **Sous-types**: Location meublée/non meublée, saisonnière (à implémenter)
+- 🔍 **Système de recherche et filtres**: 
+  - 📝 **Recherche textuelle**: Par titre, description, localisation (à implémenter)
+  - 📝 **Filtres avancés**: Prix, type, surface, caractéristiques (à implémenter)
+  - 📝 **Tri et classement**: Multiple critères de tri (à implémenter)
+- 📊 **Statistiques détaillées**: 
+  - 📝 **Graphiques**: Évolution des prix, répartition par type (à implémenter)
+  - 📝 **Tendances**: Analyse temporelle du marché (à implémenter)
+  - 📝 **Rapports**: Export PDF/Excel des statistiques (à implémenter)
 
 ### Amélioration de l'Interface Utilisateur
 - 🎨 **Thèmes visuels**: Mode sombre, personnalisation des couleurs

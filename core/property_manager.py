@@ -207,6 +207,43 @@ class PropertyManager:
         property_data['media_files'] = updated_media
         return self.db_manager.update_property(property_id, property_data)
     
+    def get_property_by_id(self, property_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get a property by its ID
+        
+        Args:
+            property_id: Property ID
+            
+        Returns:
+            Property data dictionary or None if not found
+        """
+        return self.db_manager.get_property(property_id)
+    
+    def update_property(self, property_id: int, property_data: Dict[str, Any]) -> bool:
+        """
+        Update an existing property
+        
+        Args:
+            property_id: Property ID
+            property_data: Updated property information
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        return self.db_manager.update_property(property_id, property_data)
+    
+    def delete_property(self, property_id: int) -> bool:
+        """
+        Delete a property from the database
+        
+        Args:
+            property_id: Property ID
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        return self.db_manager.delete_property(property_id)
+    
     def get_property_summary(self, property_id: int) -> Optional[Dict[str, Any]]:
         """
         Get a summary of property information for display
